@@ -41,5 +41,3 @@ If expanded into a production-grade orderbook, future enhancements could include
 
 ### Performance
 - Add benchmarks for insertion and snapshot operations.
-
----
