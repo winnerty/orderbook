@@ -6,42 +6,51 @@ The project is organized into three modules:
 - **`order.rs`** — defines the core domain types (`Order` and `Side`).  
   Prices and quantities are represented using **integer ticks (`u64`)**, a common practice in financial systems to avoid floating-point precision issues.
 
-- **`orderbook.rs`** — implements the main `OrderBook` logic:
-  - `bids`: stored in **descending** price order  
-  - `asks`: stored in **ascending** price order  
-  - `proceed_order`: inserts new price levels or aggregates quantities at existing ones  
-  - `spread`: returns the difference between the best ask and best bid  
-  - `snapshot`: returns the top *N* levels on each side
-
-  The book is backed by simple `Vec<(price, quantity)>` structures.  
-  This keeps the implementation minimal, explicit, and easy to reason about for the scope of this assignment.
+- **`orderbook.rs`** — implements the main `OrderBook` logic with high-performance data structures:
+  - **`bids`**: `BTreeMap<u64, u64>` for efficient O(log n) insertions, automatic sorting in ascending price order (reversed for DESC display)
+  - **`asks`**: `BTreeMap<u64, u64>` for efficient O(log n) insertions, automatic sorting in ascending price order
+  - `proceed_order`: inserts new price levels or aggregates quantities at existing ones with O(log n) time
+  - `spread`: returns the difference between the best ask and best bid with O(1) access to extremes
+  - `snapshot`: returns the top *N* levels on each side in correct order (bids DESC, asks ASC)
 
 - **`lib.rs`** — exposes the public API by re-exporting the main types.
 
-This modular layout keeps the codebase clear and maintainable, while the integer-based pricing ensures deterministic and precise behavior.
+This modular, performance-optimized design ensures the codebase is clear, maintainable, and suitable for real-world order book applications.
+
+---
 
 ## Tests (`tests/`)
 Integration tests verify:
 
-- correct insertion at front, middle, and end of the book  
-- quantity aggregation on existing price levels  
-- proper bid/ask ordering  
-- spread behavior in normal and edge cases  
-- snapshot correctness for various depths  
+- correct creation and emptiness checks
+- single and multiple order insertions
+- quantity aggregation on identical price levels
+- proper bid/ask sorting in DESC/ASC order respectively
+- spread calculation in normal and edge cases (empty bids/asks)
+- snapshot correctness for full depth and limited depth
+- mixed buy/sell operations with proper ordering
 
-These tests ensure consistent and predictable behavior.
+The test suite ensures consistent, predictable, and reliable behavior across all scenarios.
 
 ---
 
 ## Possible Improvements
 
-If expanded into a production-grade orderbook, future enhancements could include:
+Future enhancements for production readiness:
 
-### Data Structures
-- Replace `Vec` with `BTreeMap<u64, u64>` for **O(log n)** insertions and built-in sorting.
+### Error Handling
+- Implement **custom `Error` type** using enum (instead of panics) for graceful failure handling
+- Add **input validation** (price > 0, quantity > 0, etc.) returning `Result<T, OrderBookError>`
+- Handle edge cases with proper error propagation
 
-### Matching Logic
-- Add trade matching, partial fills, and automatic removal of empty price levels.
+### Advanced Features
+- **Order matching engine**: automatically match buy/sell orders at overlapping prices with trade execution
+- **Order cancellation**: implement `cancel_order(order_id)` to remove orders by ID
+- **Order IDs & History**: track individual orders with unique IDs and maintain execution history
+- **Multiple trading pairs**: support multiple assets/symbols in a single data structure
+- **Metrics**: add methods like `total_bid_volume()`, `total_ask_volume()`, `depth_levels()`, etc.
 
-### Performance
-- Add benchmarks for insertion and snapshot operations.
+### Serialization & Integration
+- **Serde support**: JSON export/import of OrderBook state
+- **Network protocol**: gRPC or HTTP API for remote access
+- **Database persistence**: store snapshots or full history
