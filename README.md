@@ -1,19 +1,24 @@
 ## Features
 
-### Core Logic (`src/lib.rs`)
-This library implements a simple price-priority orderbook:
+### Core Logic (modular structure)
+The project is organized into three modules:
 
-- `bids`: stored in **descending** price order  
-- `asks`: stored in **ascending** price order  
-- `proceed_order`: inserts new levels or aggregates quantity at existing prices  
-- `spread`: returns the best ask minus the best bid  
-- `snapshot`: returns the top *N* levels on each side  
+- **`order.rs`** — defines the core domain types (`Order` and `Side`).  
+  Prices and quantities are represented using **integer ticks (`u64`)**, a common practice in financial systems to avoid floating-point precision issues.
 
-The orderbook uses **integer tick-based pricing (`u64`)**, a common practice in financial systems, to avoid floating-point precision issues. Quantities are also represented as `u64` for the same reason.
+- **`orderbook.rs`** — implements the main `OrderBook` logic:
+  - `bids`: stored in **descending** price order  
+  - `asks`: stored in **ascending** price order  
+  - `proceed_order`: inserts new price levels or aggregates quantities at existing ones  
+  - `spread`: returns the difference between the best ask and best bid  
+  - `snapshot`: returns the top *N* levels on each side
 
-Data is kept in minimal `Vec<(price, quantity)>` structures for clarity.
+  The book is backed by simple `Vec<(price, quantity)>` structures.  
+  This keeps the implementation minimal, explicit, and easy to reason about for the scope of this assignment.
 
----
+- **`lib.rs`** — exposes the public API by re-exporting the main types.
+
+This modular layout keeps the codebase clear and maintainable, while the integer-based pricing ensures deterministic and precise behavior.
 
 ## Tests (`tests/`)
 Integration tests verify:
