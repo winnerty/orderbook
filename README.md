@@ -33,7 +33,7 @@ These tests ensure consistent and predictable behavior.
 If expanded into a production-grade orderbook, future enhancements could include:
 
 ### Data Structures
-- Replace `Vec` with `BTreeMap<f64, f64>` for **O(log n)** insertions and built-in sorting.
+- Replace `Vec` with `BTreeMap<u64, u64>` for **O(log n)** insertions and built-in sorting.
 
 ### Matching Logic
 - Add trade matching, partial fills, and automatic removal of empty price levels.
