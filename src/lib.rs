@@ -4,14 +4,14 @@ pub enum Side {
 }
 
 pub struct Order {
-    pub price: f64,
-    pub quantity: f64,
+    pub price: u64,
+    pub quantity: u64,
     pub side: Side
 }
 
 pub struct OrderBook {
-    pub bids: Vec<(f64, f64)>, //bids are ordered DESC price
-    pub asks: Vec<(f64, f64)>, //asks are ordered ASC price
+    pub bids: Vec<(u64, u64)>, //bids are ordered DESC price
+    pub asks: Vec<(u64, u64)>, //asks are ordered ASC price
 }
 
 impl OrderBook {
@@ -22,14 +22,14 @@ impl OrderBook {
         }
     }
 
-    pub fn snapshot(&self, amount: usize) -> (Vec<(f64, f64)>, Vec<(f64, f64)>) {
+    pub fn snapshot(&self, amount: usize) -> (Vec<(u64, u64)>, Vec<(u64, u64)>) {
         let bid_depth: usize = amount.min(self.bids.len());
         let ask_depth: usize = amount.min(self.asks.len());
         
-        (self.bids[0..bid_depth].to_vec(), self.asks[0..ask_depth].to_vec())
+        (self.bids.iter().cloned().take(bid_depth).collect(), self.asks.iter().cloned().take(ask_depth).collect())
     }
 
-    pub fn spread(&self) -> Option<f64> {
+    pub fn spread(&self) -> Option<u64> {
         if self.bids.is_empty() || self.asks.is_empty() {
             return None;
         }

@@ -9,6 +9,8 @@ This library implements a simple price-priority orderbook:
 - `spread`: returns the best ask minus the best bid  
 - `snapshot`: returns the top *N* levels on each side  
 
+The orderbook uses **integer tick-based pricing (`u64`)**, a common practice in financial systems, to avoid floating-point precision issues. Quantities are also represented as `u64` for the same reason.
+
 Data is kept in minimal `Vec<(price, quantity)>` structures for clarity.
 
 ---
@@ -36,10 +38,5 @@ If expanded into a production-grade orderbook, future enhancements could include
 ### Matching Logic
 - Add trade matching, partial fills, and automatic removal of empty price levels.
 
-### Stronger Types
-- Replace floating-point prices with integer ticks (`u64`) to avoid precision issues.
-
 ### Performance
 - Add benchmarks for insertion and snapshot operations.
-
----
